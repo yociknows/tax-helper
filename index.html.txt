@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房產稅賦小能手 ｜ By @yociknows</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: sans-serif; }
+        .card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 20px rgba(109, 40, 217, 0.02); border: 1px solid #f1f5f9; }
+        input, select { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; width: 100%; margin-top: 6px; background-color: #f8fafc; }
+        input:focus, select:focus { outline: none; border-color: #6d28d9; box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.15); }
+        label { font-size: 0.875rem; color: #4c1d95; font-weight: 600; }
+        .result-title { font-size: 0.95rem; color: #374151; font-weight: 600; }
+        .result-val { font-weight: 700; color: #6d28d9; }
+        .tips { font-size: 0.75rem; color: #64748b; margin-top: 2px; line-height: 1.25rem; }
+        .tips-highlight { color: #db2777; font-weight: 500; }
+        .tab-btn { padding: 10px 16px; font-weight: 700; border-radius: 8px; transition: all 0.2s; font-size: 0.85rem; }
+        @media (min-width: 640px) { .tab-btn { font-size: 0.95rem; padding: 12px 24px; } }
+        .tab-active { background-color: #6d28d9; color: white; box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3); }
+        .tab-inactive { background-color: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
+        .badge-applicable { background-color: #10b981; color: white; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
+        .badge-not-applicable { background-color: #ef4444; color: white; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
+    </style>
+</head>
+<body class="p-4 md:py-8">
+    <div class="max-w-xl mx-auto space-y-6">
+        
+        <div class="w-full overflow-hidden rounded-2xl shadow-md border border-purple-100">
+            <img src="https://docs.google.com/uc?export=view&id=1coeK0uM6cXbD2F0F9W8ZhEi7UsqmGFrN" alt="房產稅賦小能手" class="w-full h-auto object-cover" onerror="this.style.display='none'; document.getElementById('bannerFallback').classList.remove('hidden');">
+            <div id="bannerFallback" class="hidden text-center py-8 bg-gradient-to-r from-purple-950 via-purple-900 to-indigo-950 text-white">
+                <h1 class="text-xl font-black tracking-wider">🏛️ 房產稅賦小能手</h1>
+                <p class="text-[10px] font-bold tracking-[0.25em] opacity-60 uppercase mt-0.5">By @yociknows</p>
+            </div>
+        </div>
+        
+        <div class="flex space-x-1 sm:space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+            <button id="tabHold" class="flex-1 tab-btn tab-active" onclick="switchTab('hold')">🏠 養房持有稅</button>
+            <button id="tabBuy" class="flex-1 tab-btn tab-inactive" onclick="switchTab('buy')">🛒 我要買屋</button>
+            <button id="tabSell" class="flex-1 tab-btn tab-inactive" onclick="switchTab('sell')">💰 我要賣屋</button>
+        </div>
+
+        <h2 id="mainTitle" class="text-base font-bold text-center text-purple-800 bg-purple-50/50 py-2.5 rounded-xl border border-purple-100/70 tracking-wide">🏠 養房持有稅計算機</h2>
+        
+        <div id="holdSection" class="space-y-6">
+            <div class="card space-y-4">
+                <h2 class="font-bold border-b pb-2 text-purple-800 text-lg">📌 持有稅計算基礎</h2>
+                <div>
+                    <label>房屋評定現值 (萬元)</label>
+                    <input type="number" id="b4" value="100" oninput="calculateHold()">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>土地公告地價 (元/㎡)</label>
+                        <input type="number" id="b5" value="72800" oninput="calculateHold()">
+                    </div>
+                    <div>
+                        <label>土地宗地面積 (㎡)</label>
+                        <input type="number" id="b6" value="127" oninput="calculateHold()">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>權利範圍 (分子)</label>
+                        <input type="number" id="b7" value="1" oninput="calculateHold()">
+                    </div>
+                    <div>
+                        <label>權利範圍 (分母)</label>
+                        <input type="number" id="b8" value="4" oninput="calculateHold()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card space-y-4">
+                <h2 class="font-bold border-b pb-2 text-purple-800 text-lg">🏢 房屋稅與地價稅設定</h2>
+                <div>
+                    <label>房屋使用類別</label>
+                    <select id="b10" onchange="calculateHold()">
+                        <option value="住家用-自住-全國3戶以內">住家用-自住-全國3戶以內 (1.0%~1.2%)</option>
+                        <option value="住家用-非自住">住家用-非自住 (2.0%~4.8%)</option>
+                        <option value="住家用-非自住-出租申報達租金標準">住家用-非自住-出租申報達租金標準 (1.5%~2.4%)</option>
+                        <option value="住家用-非自住-繼承取得共有房屋">住家用-非自住-繼承取得共有房屋 (1.5%~2.4%)</option>
+                        <option value="住家用-非自住-建商新建待銷售房屋-2年以內">住家用-非自住-建商新建待銷售房屋-2年以內 (2.0%~3.6%)</option>
+                        <option value="住家用-非自住-建商新建待銷售房屋-超過2年">住家用-非自住-建商新建待銷售房屋-超過2年 (2.0%~4.8%)</option>
+                        <option value="非住家用-供營業用">非住家用-供營業用 (3.0%~5.0%)</option>
+                        <option value="非住家用-供人民團體等非營業使用">非住家用-供人民團體等非營業使用 (1.5%~2.5%)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>土地類別</label>
+                    <select id="b11" onchange="calculateHold()">
+                        <option value="2">自用住宅/勞工/國民住宅 (2‰)</option>
+                        <option value="6">公共設施保留地 (6‰)</option>
+                        <option value="10">工業/加油站/停車場 (10‰)</option>
+                        <option value="10-base">公有土地 (10‰)</option>
+                        <option value="progressive">其他 (按課稅級距 10‰~55‰)</option>
+                    </select>
+                </div>
+                <div class="text-sm text-gray-500 bg-slate-50 p-2 rounded">
+                    土地-課稅地價總額：<span id="resB12" class="font-semibold text-purple-700">0</span> 萬元
+                </div>
+            </div>
+
+            <div class="card space-y-4 border-l-4 border-l-purple-600">
+                <h2 class="font-bold border-b pb-1 text-purple-800 text-lg">📅 每年固定養房費用試算</h2>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="result-title">房屋稅預估</span>
+                    <span class="result-val text-purple-700" id="resHouseTaxHold">0 元</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="result-title">地價稅預估</span>
+                    <span class="result-val text-emerald-600" id="resLandTaxHold">0 元</span>
+                </div>
+                <div class="flex justify-between items-start border-b pb-2">
+                    <div>
+                        <span class="result-title block">房屋住宅保險</span>
+                        <span class="text-xs text-gray-400 block mt-0.5">強制投投保住宅火災及地震基本保險</span>
+                    </div>
+                    <span class="result-val text-gray-700 pt-1">2,500 元</span>
+                </div>
+                <div class="bg-amber-50 p-4 border border-amber-200 rounded-xl flex justify-between items-center mt-3">
+                    <span class="font-bold text-amber-900 text-base">每年固定稅費合計</span>
+                    <span class="text-xl font-black text-amber-700" id="resAnnualTotalHold">0 元</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="buySection" class="space-y-6 hidden">
+            <div class="card space-y-4">
+                <h2 class="font-bold border-b pb-2 text-purple-800 text-lg">📌 買方稅金計算基礎</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>買價 (萬元)</label>
+                        <input type="number" id="c4" value="3106" oninput="calculateBuy()">
+                    </div>
+                    <div>
+                        <label>申報契價 (房屋評定現值/萬元)</label>
+                        <input type="number" id="c5" value="80" oninput="calculateBuy()">
+                        <p class="tips">*請參考原屋主房屋稅單之<span class="tips-highlight">課稅現值</span>；中古屋通常介於 30~150 萬元之間。</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>土地公告現值 (元/㎡)</label>
+                        <input type="number" id="c6" value="515000" oninput="calculateBuy()">
+                    </div>
+                    <div>
+                        <label>土地公告地價 (元/㎡)</label>
+                        <input type="number" id="c7" value="137000" oninput="calculateBuy()">
+                    </div>
+                </div>
+                <div>
+                    <label>土地宗地面積 (㎡)</label>
+                    <input type="number" id="c8" value="1909" oninput="calculateBuy()">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>移轉或設典範圍 (分子)</label>
+                        <input type="number" id="c9" value="3679" oninput="calculateBuy()">
+                    </div>
+                    <div>
+                        <label>移轉或設典範圍 (分母)</label>
+                        <input type="number" id="c10" value="206100" oninput="calculateBuy()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card space-y-4">
+                <h2 class="font-bold border-b pb-2 text-purple-800 text-lg">🏡 買屋使用狀況設定</h2>
+                <div>
+                    <label>房屋使用狀況</label>
+                    <select id="c12" onchange="calculateBuy()">
+                        <option value="住家用-自住-全國3戶以內">住家用-自住-全國3戶以內 (1.0%~1.2%)</option>
+                        <option value="住家用-非自住">住家用-非自住 (2.0%~4.8%)</option>
+                        <option value="非住家用-供營業用">非住家用-供營業用 (3.0%~5.0%)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>土地類別</label>
+                    <select id="c13" onchange="calculateBuy()">
+                        <option value="2">自用住宅用地 (2‰)</option>
+                        <option value="progressive">其他(按課稅級距 10‰~55‰)</option>
+                    </select>
+                </div>
+                <div class="text-sm text-gray-500 bg-slate-50 p-2 rounded">
+                    課稅地價總額：<span id="resC14" class="font-semibold text-purple-700">0</span> 萬元
+                </div>
+            </div>
+            
+            <div class="card space-y-4 border-l-4 border-l-purple-600">
+                <h2 class="font-bold border-b pb-1 text-purple-800 text-lg">💰 A-1. 一次性稅費 (交屋過戶時繳納)</h2>
+                <div class="flex justify-between items-start border-b pb-2">
+                    <div>
+                        <span class="result-title block">契稅</span>
+                        <span class="text-xs text-gray-400 block mt-0.5">房屋評定現值 * 6%</span>
+                    </div>
+                    <span class="result-val" id="resC18">0 元</span>
+                </div>
+                <div class="flex justify-between items-start border-b pb-2">
+                    <div>
+                        <span class="result-title block">印花稅</span>
+                        <span class="text-xs text-gray-400 block mt-0.5">按土地及建物契約價格的 0.1% 繳納</span>
+                    </div>
+                    <span class="result-val" id="resC19">0 元</span>
+                </div>
+                <div class="flex justify-between items-start border-b pb-2">
+                    <div>
+                        <span class="result-title block">地政登記規費</span>
+                        <span class="text-xs text-gray-400 block mt-0.5">內含買賣登記費、抵押權設定登記費、書狀費</span>
+                    </div>
+                    <span class="result-val" id="resC20">0 元</span>
+                </div>
+                <div class="flex justify-between items-start border-b pb-2">
+                    <div>
+                        <span class="result-title block">產權移轉登記代書費</span>
+                        <span class="text-xs text-gray-400 block mt-0.5">委託代書辦理過戶的服務費（行情價）</span>
+                    </div>
+                    <span class="result-val text-gray-700 font-bold">15,000 元</span>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-xl flex justify-between items-center mt-3">
+                    <span class="font-bold text-purple-900 text-base">一次性稅費合計</span>
+                    <span class="text-xl font-black text-purple-700" id="resBuyTotal1">0 元</span>
+                </div>
+            </div>
+
+            <div class="card space-y-4 border-l-4 border-l-pink-600">
+                <h2 class="font-bold border-b pb-1 text-pink-700 text-lg">📅 A-2. 每年固定養房稅費預估</h2>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="result-title">房屋稅預估</span>
+                    <span class="result-val text-purple-700" id="resHouseTaxRange">0 元</span>
+                </div>
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="result-title">地價稅預估</span>
+                    <span class="result-val text-emerald-600" id="resC27">0 元</span>
+                </div>
+                <div class="flex justify-between items-start border-b pb-2">
+                    <div>
+                        <span class="result-title block">房屋住宅保險</span>
+                        <span class="text-xs text-gray-400 block mt-0.5">強制投保住宅火災及地震基本保險</span>
+                    </div>
+                    <span class="result-val text-gray-700">2,500 元</span>
+                </div>
+                <div class="bg-amber-50 p-4 border border-amber-200 rounded-xl flex justify-between items-center mt-3">
+                    <span class="font-bold text-amber-900 text-base">每年養房固定合計</span>
+                    <span class="text-xl font-black text-amber-700" id="resAnnualTotal">0 元</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="sellSection" class="space-y-6 hidden">
+            <div class="card space-y-4 border-2 border-purple-600">
+                <h2 class="font-bold border-b pb-2 text-purple-800 text-lg flex justify-between items-center">
+                    <span>📅 關鍵時間點與制式自動判定</span>
+                    <button onclick="toggleModal(true)" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-sm transition-all">
+                        💡 都更合建租稅優惠 TIPS
+                    </button>
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>原取得(買入)日期</label>
+                        <input type="date" id="c35" value="2014-10-01" onchange="calculateSell()">
+                    </div>
+                    <div>
+                        <label>本次移轉(賣出)日期</label>
+                        <input type="date" id="c36" value="2026-05-14" onchange="calculateSell()">
+                    </div>
+                </div>
+                
+                <div class="p-3 bg-slate-100 rounded-xl space-y-2 text-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700 font-medium">1. 舊制 財產交易所得稅：</span>
+                        <span id="badgeOldTax" class="badge-applicable">適用</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700 font-medium">2. 新制 房地合一稅：</span>
+                        <span id="badgeNewTax" class="badge-not-applicable">不適用</span>
+                    </div>
+                    <div class="text-xs text-purple-700 font-medium pt-1 border-t border-dashed border-gray-300">
+                        📊 持有年限精算：<span id="resC37" class="font-bold text-base">0</span> 年
+                    </div>
+                </div>
+            </div>
+
+            <div class="card space-y-4">
+                <h2 class="font-bold border-b pb-2 text-purple-800 text-lg">📌 賣方交易數據輸入</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>原買入總價 (萬元)</label>
+                        <input type="number" id="c33" value="4400" oninput="calculateSell()">
+                    </div>
+                    <div>
+                        <label>本次賣出總價 (萬元)</label>
+                        <input type="number" id="c34" value="5000" oninput="calculateSell()">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>當期土地公告現值 (元/㎡)</label>
+                        <input type="number" id="c41" value="515000" oninput="calculateSell()">
+                    </div>
+                    <div>
+                        <label>前次移轉現值 (元/㎡)</label>
+                        <input type="number" id="c40" value="480000" oninput="calculateSell()">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label>物價指數(%)</label>
+                        <input type="number" id="c43" value="100.09" oninput="calculateSell()">
+                    </div>
+                    <div>
+                        <label>移轉面積(㎡)</label>
+                        <input type="number" id="c44" value="1906" oninput="calculateSell()">
+                    </div>
+                    <div>
+                        <label>前次公告地價</label>
+                        <input type="number" id="c42" value="120000" oninput="calculateSell()">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>移轉持分 (分子)</label>
+                        <input type="number" id="c46" value="3679" oninput="calculateSell()">
+                    </div>
+                    <div>
+                        <label>移轉持分 (分母)</label>
+                        <input type="number" id="e46" value="206100" oninput="calculateSell()">
+                    </div>
+                </div>
+                <div>
+                    <label>土地類別設定</label>
+                    <select id="c45" onchange="calculateSell()">
+                        <option value="都市土地">都市土地</option>
+                        <option value="非都市土地">非都市土地</option>
+                    </select>
+                    <div class="mt-2 p-2.5 bg-amber-50/60 border border-amber-200/70 rounded-lg space-y-1">
+                        <p class="text-[11px] text-amber-800 leading-relaxed font-medium">⚠️ *使用地類別空白者，請點選都市土地。</p>
+                        <p class="text-[11px] text-amber-800 leading-relaxed font-medium">💡 *非都市土地若供「公共設施使用」，且滿足特定條件，在移轉時可以申請免徵土地增值稅，這是都市土地的一般建地較難享有的。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card space-y-4 border-2 border-blue-400">
+                <h2 class="font-bold border-b pb-2 text-blue-700 text-lg">🧾 房地合一可扣除費用明細 (萬元)</h2>
+                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg text-xs space-y-1 col-span-2">
+                    <div>A. 未提憑證(3%推計)：<span id="txtEstimateFee" class="font-bold text-gray-700">0</span> 萬元</div>
+                    <div>B. 已提憑證(列舉總計)：<span id="txtReceiptTotal" class="font-bold text-blue-600">0</span> 萬元</div>
+                    <div class="col-span-2 text-sm pt-1 border-t border-dashed">
+                        🔥 實際代入主運算總費用：<span id="resFinalFeeC58" class="font-black text-rose-600 text-base">0</span> 萬元
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <div><label class="text-xs text-gray-600">a. 仲介費 (萬元)</label><input type="number" id="feeA" value="200" oninput="calculateSell()" class="p-1.5 text-sm"></div>
+                    <div><label class="text-xs text-gray-600">b. 裝修費 (萬元)</label><input type="number" id="feeB" value="100" oninput="calculateSell()" class="p-1.5 text-sm"></div>
+                    <div><label class="text-xs text-gray-600">c. 廣告費 (萬元)</label><input type="number" id="feeC" value="0" oninput="calculateSell()" class="p-1.5 text-sm"></div>
+                    <div><label class="text-xs text-gray-600">d. 清潔費 (萬元)</label><input type="number" id="feeD" value="0" oninput="calculateSell()" class="p-1.5 text-sm"></div>
+                    <div><label class="text-xs text-gray-600">e. 搬運費 (萬元)</label><input type="number" id="feeE" value="0" oninput="calculateSell()" class="p-1.5 text-sm"></div>
+                    <div><label class="text-xs text-gray-600">f. 其他必要費用 (萬元)</label><input type="number" id="feeF" value="20" oninput="calculateSell()" class="p-1.5 text-sm"></div>
+                </div>
+            </div>
+
+            <div class="card space-y-3">
+                <h2 class="font-bold border-b pb-2 text-purple-700 text-lg">⚖️ 土地增值稅方案選擇與都更減徵</h2>
+                <div class="space-y-2">
+                    <label class="flex items-center space-x-3 p-2 bg-slate-50 rounded cursor-pointer">
+                        <input type="radio" name="taxScheme" id="schemeA50" checked onclick="calculateSell()" class="w-4 h-4 text-purple-600">
+                        <div><span class="font-bold text-sm block">申請自用住宅用地特惠稅率 (10%)</span></div>
+                    </label>
+                    <label class="flex items-center space-x-3 p-2 bg-slate-50 rounded cursor-pointer">
+                        <input type="radio" name="taxScheme" id="schemeA51" onclick="calculateSell()" class="w-4 h-4 text-purple-600">
+                        <div><span class="font-bold text-sm block">按一般用地累進稅率課徵 (20% ~ 40%)</span></div>
+                    </label>
+                    <div class="border-t border-dashed pt-2 mt-2">
+                        <label class="flex items-center space-x-3 p-2 bg-purple-50 rounded border border-purple-200 cursor-pointer">
+                            <input type="checkbox" id="chkUrbanRenewal" onclick="calculateSell()" class="w-4 h-4 text-purple-600 rounded">
+                            <div>
+                                <span class="font-bold text-xs text-purple-950 block">套用都市更新條例第67條（協議合建：土地增值稅減徵 40%）</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card space-y-3">
+                <h2 class="font-bold border-b pb-2 text-purple-700 text-base">🏛️ 舊制財產交易所得稅細項輸入</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label>房屋財產交易所得 (元) [B95]</label>
+                        <input type="number" id="b95" value="2025000" oninput="calculateSell()">
+                    </div>
+                    <div>
+                        <label>免稅額與標準/列舉扣除額 (元) [C95]</label>
+                        <input type="number" id="c95" value="200000" oninput="calculateSell()">
+                    </div>
+                </div>
+            </div>
+
+            <div id="cardNewTaxResult" class="card space-y-3 border-l-4 border-l-purple-500">
+                <h2 class="font-bold border-b pb-2 text-purple-700 text-lg">✨ 新制房地合一稅試算結果</h2>
+                <div class="p-2 bg-slate-50 rounded text-xs text-gray-600 space-y-1">
+                    <div>土地漲價總數額：<span id="resC39" class="font-semibold text-purple-700">0</span> 萬元</div>
+                    <div>前次移轉現值總額：<span id="resC47" class="font-semibold text-purple-700">0</span> 萬元</div>
+                    <div>漲價倍數 (G39)：<span id="resG39" class="font-semibold text-purple-700">0</span></div>
+                </div>
+                <div class="flex justify-between border-b pb-1">
+                    <span class="result-title font-medium">土地增值稅額 <span id="txtURBadge" class="text-purple-600 font-bold ml-1 hidden">(🎉協議合建已減徵40%)</span></span>
+                    <span class="result-val text-purple-600" id="resFinalLcTax">0 元</span>
+                </div>
+                <div class="flex justify-between items-start border-b pb-1 bg-rose-50 p-2 rounded">
+                    <div>
+                        <span class="result-title font-semibold block">房地合一稅 (一般稅率制)</span>
+                        <span class="text-[11px] text-gray-500 block mt-0.5">*( 賣出總價 - 買入總價 - 費用 - 土地漲價總數額 ) &times; 稅率</span>
+                    </div>
+                    <span class="result-val text-rose-600 pt-2" id="resC65">0 元</span>
+                </div>
+                <div class="flex justify-between border-b pb-1 bg-amber-50 p-2 rounded">
+                    <span class="result-title font-semibold">房地合一稅 (自住滿6年免稅優惠)</span>
+                    <span class="result-val text-amber-600" id="resC66">0 元</span>
+                </div>
+            </div>
+
+            <div id="cardOldTaxResult" class="card space-y-3 border-l-4 border-l-pink-600">
+                <h2 class="font-bold border-b pb-2 text-pink-700 text-lg">🏛️ 舊制財產交易所得稅試算結果</h2>
+                <div class="flex justify-between border-b pb-1"><span class="result-title">房屋課稅所得額 [B97]</span><span class="font-semibold text-gray-800" id="resB97">0 元</span></div>
+                <div class="flex justify-between border-b pb-1"><span class="result-title">適用綜合所得級距稅率</span><span class="font-bold text-gray-800" id="resOldRate">0%</span></div>
+                <div class="flex justify-between border-b pb-1"><span class="result-title">累進差額額度</span><span class="font-semibold text-gray-800" id="resOldDiff">0 元</span></div>
+                <div class="flex justify-between pt-1 bg-yellow-50 p-3 rounded-lg border border-yellow-200 mt-2">
+                    <span class="font-bold text-purple-950 text-base">最終應納綜合所得稅額</span>
+                    <span class="text-xl font-black text-purple-700" id="resOldFinalTax">0 元</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="urModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-purple-100 space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="text-lg font-bold text-purple-900 flex items-center gap-1">🏢 都市更新（協議合建）租稅優惠 TIPS</h3>
+                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            </div>
+            <div class="space-y-3 text-sm text-slate-700 max-h-[60vh] overflow-y-auto pr-1">
+                <div class="p-2.5 bg-purple-50 rounded-lg"><span class="font-bold text-purple-900 block">1. 房屋稅優惠</span><p class="text-xs text-slate-600 mt-0.5">都更完工後，協議合建之地主房屋稅同享減半 2 年；最長延長至 12 年。</p></div>
+                <div class="p-2.5 bg-purple-50 rounded-lg"><span class="font-bold text-purple-900 block">2. 地價稅優惠</span><p class="text-xs text-slate-600 mt-0.5">施工期間免徵；完工後減半徵收 2 年。</p></div>
+                <div class="p-2.5 bg-purple-50 rounded-lg"><span class="font-bold text-purple-900 block">3. 契稅優惠 (減徵 40%)</span><p class="text-xs text-slate-600 mt-0.5">完工後第一次取得房地，應納契稅<span class="text-rose-600 font-bold">減徵 40%</span>。</p></div>
+                <div class="p-2.5 bg-purple-50 rounded-lg"><span class="font-bold text-purple-900 block">4. 土地增值稅優惠 (減徵 40%)</span><p class="text-xs text-slate-600 mt-0.5">因合建第一次移轉土地給建商時，土地增值稅<span class="text-purple-700 font-bold">減徵 40%</span>。</p></div>
+                <div class="p-2.5 bg-purple-50 rounded-lg"><span class="font-bold text-purple-900 block">5. 房地互易（5% 營業稅提示）</span><p class="text-xs text-slate-600 mt-0.5">建商換給地主的房屋價值部分，必須開立發票並課徵 5% 營業稅。</p></div>
+            </div>
+            <div class="pt-2 border-t flex justify-end">
+                <button onclick="toggleModal(false)" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow">我了解了</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleModal(show) {
+            const modal = document.getElementById('urModal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function switchTab(type) {
+            const tabs = ['tabHold', 'tabBuy', 'tabSell'];
+            const sections = ['holdSection', 'buySection', 'sellSection'];
+            
+            tabs.forEach(id => document.getElementById(id).className = "flex-1 tab-btn tab-inactive");
+            sections.forEach(id => document.getElementById(id).classList.add('hidden'));
+
+            const mainTitle = document.getElementById('mainTitle');
+            if (type === 'hold') {
+                document.getElementById('tabHold').className = "flex-1 tab-btn tab-active";
+                document.getElementById('holdSection').classList.remove('hidden');
+                mainTitle.innerText = "🏠 養房持有稅計算機";
+                calculateHold();
+            } else if (type === 'buy') {
+                document.getElementById('tabBuy').className = "flex-1 tab-btn tab-active";
+                document.getElementById('buySection').classList.remove('hidden');
+                mainTitle.innerText = "🔑 買屋稅費試算機";
+                calculateBuy();
+            } else if (type === 'sell') {
+                document.getElementById('tabSell').className = "flex-1 tab-btn tab-active";
+                document.getElementById('sellSection').classList.remove('hidden');
+                mainTitle.innerText = "💰 賣屋稅費試算機";
+                calculateSell();
+            }
+        }
+
+        function calculateHold() {
+            const b4 = parseFloat(document.getElementById('b4').value) || 0;
+            const b5 = parseFloat(document.getElementById('b5').value) || 0;
+            const b6 = parseFloat(document.getElementById('b6').value) || 0;
+            const b7 = parseFloat(document.getElementById('b7').value) || 1;
+            const b8 = parseFloat(document.getElementById('b8').value) || 1;
+            const b10 = document.getElementById('b10').value;
+            const b11 = document.getElementById('b11').value;
+
+            const houseRatesHold = {
+                "住家用-自住-全國3戶以內": [0.01, 0.012], "住家用-非自住": [0.02, 0.048],
+                "住家用-非自住-出租申報達租金標準": [0.015, 0.024], "住家用-非自住-繼承取得共有房屋": [0.015, 0.024],
+                "住家用-非自住-建商新建待銷售房屋-2年以內": [0.02, 0.036], "住家用-非自住-建商新建待銷售房屋-超過2年": [0.02, 0.048],
+                "非住家用-供營業用": [0.03, 0.05], "非住家用-供人民團體等非營業使用": [0.015, 0.025]
+            };
+            const hRateHold = houseRatesHold[b10] || [0.01, 0.012];
+            
+            const hMinYuan = b4 * hRateHold[0] * 10000;
+            const hMaxYuan = b4 * hRateHold[1] * 10000;
+            document.getElementById('resHouseTaxHold').innerText = Math.round(hMinYuan).toLocaleString() + " ~ " + Math.round(hMaxYuan).toLocaleString() + " 元";
+
+            const b12 = (b5 * 0.8 * b6 * (b7 / b8)) / 10000;
+            document.getElementById('resB12').innerText = b12.toFixed(2);
+
+            let landTaxHold = 0;
+            const totalInYuanHold = b12 * 10000;
+            const basePointHold = 43957000;
+
+            if (b11 === "progressive") {
+                if (totalInYuanHold <= basePointHold) landTaxHold = totalInYuanHold * 0.01;
+                else if (totalInYuanHold <= basePointHold * 6) landTaxHold = totalInYuanHold * 0.015 - basePointHold * 0.005;
+                else if (totalInYuanHold <= basePointHold * 11) landTaxHold = totalInYuanHold * 0.025 - basePointHold * 0.065;
+                else if (totalInYuanHold <= basePointHold * 16) landTaxHold = totalInYuanHold * 0.035 - basePointHold * 0.175;
+                else if (totalInYuanHold <= basePointHold * 21) landTaxHold = totalInYuanHold * 0.045 - basePointHold * 0.335;
+                else landTaxHold = totalInYuanHold * 0.055 - basePointHold * 0.545;
+            } else {
+                const rate = parseFloat(b11) / 1000 || 0.002;
+                landTaxHold = totalInYuanHold * rate;
+            }
+            document.getElementById('resLandTaxHold').innerText = Math.round(landTaxHold).toLocaleString() + " 元";
+            
+            const minTotal = hMinYuan + landTaxHold + 2500;
+            const maxTotal = hMaxYuan + landTaxHold + 2500;
+            document.getElementById('resAnnualTotalHold').innerText = Math.round(minTotal).toLocaleString() + " ~ " + Math.round(maxTotal).toLocaleString() + " 元/年";
+        }
+
+        function calculateBuy() {
+            const buyC4 = parseFloat(document.getElementById('c4').value) || 0;
+            const buyC5 = parseFloat(document.getElementById('c5').value) || 0;
+            const buyC6 = parseFloat(document.getElementById('c6').value) || 0;
+            const buyC7 = parseFloat(document.getElementById('c7').value) || 0;
+            const buyC8 = parseFloat(document.getElementById('c8').value) || 0;
+            const buyC9 = parseFloat(document.getElementById('c9').value) || 1;
+            const buyC10 = parseFloat(document.getElementById('c10').value) || 1;
+            const buyC12 = document.getElementById('c12').value;
+            const buyC13 = document.getElementById('c13').value;
+
+            const buyC14 = (buyC7 * 0.8 * buyC8 * (buyC9 / buyC10)) / 10000;
+            document.getElementById('resC14').innerText = buyC14.toFixed(2);
+
+            const buyC18 = buyC5 * 0.06;
+            document.getElementById('resC18').innerText = Math.round(buyC18 * 10000).toLocaleString() + " 元";
+            const buyC19 = (buyC18 * 10000) * 0.001;
+            document.getElementById('resC19').innerText = Math.round(buyC19).toLocaleString() + " 元";
+
+            const landRegVal = buyC7 * buyC8 * (buyC9 / buyC10);
+            const buyC20 = ((buyC5 * 10000) + landRegVal) * 0.001 + (buyC4 * 10000 * 0.8 * 1.2 * 0.001) + (80 * 3);
+            document.getElementById('resC20').innerText = Math.round(buyC20).toLocaleString() + " 元";
+
+            const buyC22 = (buyC18 * 10000) + buyC19 + buyC20 + 15000;
+            document.getElementById('resBuyTotal1').innerText = Math.round(buyC22).toLocaleString() + " 元";
+
+            const houseRatesBuy = { "住家用-自住-全國3戶以內": [0.01, 0.012], "住家用-非自住": [0.02, 0.048], "非住家用-供營業用": [0.03, 0.05] };
+            const hRateBuy = houseRatesBuy[buyC12] || [0.01, 0.012];
+            const buyC26 = buyC5 * hRateBuy[0] * 10000; const buyE26 = buyC5 * hRateBuy[1] * 10000;
+            document.getElementById('resHouseTaxRange').innerText = Math.round(buyC26).toLocaleString() + " ~ " + Math.round(buyE26).toLocaleString() + " 元";
+            
+            let buyC27 = buyC14 * 10000 * (2 / 1000);
+            document.getElementById('resC27').innerText = Math.round(buyC27).toLocaleString() + " 元";
+            document.getElementById('resAnnualTotal').innerText = Math.round(buyC26 + buyC27 + 2500).toLocaleString() + " ~ " + Math.round(buyE26 + buyC27 + 2500).toLocaleString() + " 元/年";
+        }
+
+        function calculateSell() {
+            const c33 = parseFloat(document.getElementById('c33').value) || 0;
+            const c34 = parseFloat(document.getElementById('c34').value) || 0;
+            const c35Val = document.getElementById('c35').value;
+            const c36Val = document.getElementById('c36').value;
+            const c40 = parseFloat(document.getElementById('c40').value) || 0;
+            const c41 = parseFloat(document.getElementById('c41').value) || 0;
+            const c42 = parseFloat(document.getElementById('c42').value) || 0;
+            const c43 = parseFloat(document.getElementById('c43').value) || 100;
+            const c44 = parseFloat(document.getElementById('c44').value) || 0;
+            const c46 = parseFloat(document.getElementById('c46').value) || 1;
+            const e46 = parseFloat(document.getElementById('e46').value) || 1;
+            const b95 = parseFloat(document.getElementById('b95').value) || 0;
+            const c95 = parseFloat(document.getElementById('c95').value) || 0;
+
+            const feeA = parseFloat(document.getElementById('feeA').value) || 0;
+            const feeB = parseFloat(document.getElementById('feeB').value) || 0;
+            const feeC = parseFloat(document.getElementById('feeC').value) || 0;
+            const feeD = parseFloat(document.getElementById('feeD').value) || 0;
+            const feeE = parseFloat(document.getElementById('feeE').value) || 0;
+            const feeF = parseFloat(document.getElementById('feeF').value) || 0;
+
+            if(!c35Val || !c36Val) return;
+            const c35 = new Date(c35Val); const c36 = new Date(c36Val);
+            const isNewTax = c35 >= new Date('2016-01-01');
+
+            if (isNewTax) {
+                document.getElementById('badgeOldTax').className = "badge-not-applicable"; document.getElementById('badgeOldTax').innerText = "不適用";
+                document.getElementById('badgeNewTax').className = "badge-applicable"; document.getElementById('badgeNewTax').innerText = "適用";
+                document.getElementById('cardNewTaxResult').style.opacity = "1"; document.getElementById('cardOldTaxResult').style.opacity = "0.3";
+            } else {
+                document.getElementById('badgeOldTax').className = "badge-applicable"; document.getElementById('badgeOldTax').innerText = "適用";
+                document.getElementById('badgeNewTax').className = "badge-not-applicable"; document.getElementById('badgeNewTax').innerText = "不適用";
+                document.getElementById('cardNewTaxResult').style.opacity = "0.3"; document.getElementById('cardOldTaxResult').style.opacity = "1";
+            }
+
+            let diffYear = c36.getFullYear() - c35.getFullYear();
+            if (c36.getMonth() < c35.getMonth() || (c36.getMonth() === c35.getMonth() && c36.getDate() < c35.getDate())) diffYear--;
+            const c37 = diffYear < 0 ? 0 : diffYear;
+            document.getElementById('resC37').innerText = c37;
+
+            let estimateFee = c34 * 0.03; if (estimateFee > 30) estimateFee = 30;
+            document.getElementById('txtEstimateFee').innerText = estimateFee.toFixed(2);
+            const receiptTotal = feeA + feeB + feeC + feeD + feeE + feeF;
+            document.getElementById('txtReceiptTotal').innerText = receiptTotal.toFixed(2);
+            const finalC58 = receiptTotal > 0 ? receiptTotal : estimateFee;
+            document.getElementById('resFinalFeeC58').innerText = finalC58.toFixed(2);
+
+            const c39 = ((c41 * c44 * (c46 / e46)) - (c40 * (c43 / 100) * c44 * (c46 / e46))) / 10000;
+            document.getElementById('resC39').innerText = c39.toFixed(2);
+            const c47 = (c42 * (c43 / 100) * c44 * (c46 / e46)) / 10000;
+            document.getElementById('resC47').innerText = c47.toFixed(2);
+            const g39 = c47 > 0 ? (c39 / c47) : 0;
+            document.getElementById('resG39').innerText = g39.toFixed(4);
+
+            const isSchemeA50 = document.getElementById('schemeA50').checked;
+            let c63 = 0;
+            if (g39 < 1) c63 = c39 * 0.2;
+            else if (g39 < 2) c63 = c39 * 0.3 - c47 * 0.1;
+            else c63 = c39 * 0.4 - c47 * 0.3;
+
+            let baseLcTax = isSchemeA50 ? (c39 * 0.10) : c63;
+
+            const isUrbanRenewal = document.getElementById('chkUrbanRenewal').checked;
+            if (isUrbanRenewal) {
+                baseLcTax = baseLcTax * 0.6;
+                document.getElementById('txtURBadge').classList.remove('hidden');
+            } else {
+                document.getElementById('txtURBadge').classList.add('hidden');
+            }
+            document.getElementById('resFinalLcTax').innerText = Math.round(baseLcTax * 10000).toLocaleString() + " 元";
+
+            let c65Rate = 0.15;
+            if (c37 < 2) c65Rate = 0.45;
+            else if (c37 < 5) c65Rate = 0.35;
+            else if (c37 < 10) c65Rate = 0.20;
+            
+            const baseProfit = (c34 - c33 - finalC58 - baseLcTax);
+            const c65 = baseProfit > 0 ? baseProfit * c65Rate : 0;
+            document.getElementById('resC65').innerText = isNewTax ? Math.round(c65 * 10000).toLocaleString() + " 元" : "不適用 (舊制免課)";
+
+            const c66Profit = baseProfit - 400;
+            const c66 = c66Profit > 0 ? c66Profit * 0.10 : 0;
+            document.getElementById('resC66').innerText = isNewTax ? Math.round(c66 * 10000).toLocaleString() + " 元" : "不適用 (舊制免課)";
+
+            const b97 = b95 - c95;
+            document.getElementById('resB97').innerText = (b97 > 0 ? Math.round(b97).toLocaleString() : 0) + " 元";
+            let oldRate = 0.05; let oldDiff = 0;
+            if (b97 <= 590000) { oldRate = 0.05; oldDiff = 0; }
+            else if (b97 <= 1330000) { oldRate = 0.12; oldDiff = 41300; }
+            else if (b97 <= 2660000) { oldRate = 0.20; oldDiff = 147700; }
+            else { oldRate = 0.30; oldDiff = 413700; }
+            document.getElementById('resOldRate').innerText = (oldRate * 100) + "%";
+            document.getElementById('resOldDiff').innerText = Math.round(oldDiff).toLocaleString() + " 元";
+            const oldFinalTax = b97 > 0 ? (b97 * oldRate - oldDiff) : 0;
+            document.getElementById('resOldFinalTax').innerText = !isNewTax ? Math.round(oldFinalTax).toLocaleString() + " 元" : "不適用 (已改課房地合一稅)";
+        }
+
+        // 啟動持有稅初始化
+        calculateHold();
+    </script>
+</body>
+</html>
