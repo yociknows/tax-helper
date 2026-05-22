@@ -1,14 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>房產稅賦小能手 ｜ By @yociknows</title>
-
     <link rel="apple-touch-icon" href="https://ibb.co/BKqZ52fP">
     <link rel="icon" type="image/png" href="https://ibb.co/BKqZ52fP">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f8fafc; font-family: sans-serif; }
@@ -178,29 +175,21 @@
                     <select id="c12" onchange="calculateBuy()">
                         <option value="住家用-自住-全國3戶以內">住家用-自住-全國3戶以內 (1.0%~1.2%)</option>
                         <option value="住家用-非自住">住家用-非自住 (2.0%~4.8%)</option>
-                        <option value="住家用-非自住-出租申報達租金標準">住家用-非自住-出租申報達租金標準 (1.5%~2.4%)</option>
-                        <option value="住家用-非自住-繼承取得共有房屋">住家用-非自住-繼承取得共有房屋 (1.5%~2.4%)</option>
-                        <option value="住家用-非自住-建商新建待銷售房屋-2年以內">住家用-非自住-建商新建待銷售房屋-2年以內 (2.0%~3.6%)</option>
-                        <option value="住家用-非自住-建商新建待銷售房屋-超過2年">住家用-非自住-建商新建待銷售房屋-超過2年 (2.0%~4.8%)</option>
                         <option value="非住家用-供營業用">非住家用-供營業用 (3.0%~5.0%)</option>
-                        <option value="非住家用-供人民團體等非營業使用">非住家用-供人民團體等非營業使用 (1.5%~2.5%)</option>
                     </select>
                 </div>
                 <div>
                     <label>土地類別</label>
                     <select id="c13" onchange="calculateBuy()">
-                        <option value="2">自用住宅/勞工/國民住宅 (2‰)</option>
-                        <option value="6">公共設施保留地 (6‰)</option>
-                        <option value="10">工業/加油站/停車場 (10‰)</option>
-                        <option value="10-base">公有土地 (10‰)</option>
-                        <option value="progressive">其他 (按課稅級距 10‰~55‰)</option>
+                        <option value="2">自用住宅用地 (2‰)</option>
+                        <option value="progressive">其他(按課稅級距 10‰~55‰)</option>
                     </select>
                 </div>
                 <div class="text-sm text-gray-500 bg-slate-50 p-2 rounded">
                     課稅地價總額：<span id="resC14" class="font-semibold text-purple-700">0</span> 萬元
                 </div>
             </div>
-             
+            
             <div class="card space-y-4 border-l-4 border-l-purple-600">
                 <h2 class="font-bold border-b pb-1 text-purple-800 text-lg">💰 A-1. 一次性稅費 (交屋過戶時繳納)</h2>
                 <div class="flex justify-between items-start border-b pb-2">
@@ -262,6 +251,7 @@
         </div>
 
         <div id="sellSection" class="space-y-6 hidden">
+            
             <div class="card space-y-4 border-2 border-purple-600">
                 <h2 class="font-bold border-b pb-2 text-purple-800 text-lg flex justify-between items-center">
                     <span>📅 關鍵時間點與制式自動判定</span>
@@ -279,7 +269,6 @@
                         <input type="date" id="c36" value="2026-05-14" onchange="calculateSell()">
                     </div>
                 </div>
-                
                 <div class="p-3 bg-slate-100 rounded-xl space-y-2 text-sm">
                     <div class="flex justify-between items-center">
                         <span class="text-gray-700 font-medium">1. 舊制 財產交易所得稅：</span>
@@ -325,7 +314,7 @@
                     <div>
                         <label>移轉面積(㎡)</label>
                         <input type="number" id="c44" value="1906" oninput="calculateSell()">
-                    </div>               
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -391,6 +380,38 @@
                 </div>
             </div>
 
+            <div class="card space-y-3 border-l-4 border-l-emerald-500">
+                <h2 class="font-bold border-b pb-2 text-emerald-700 text-lg">🌳 土地增值稅</h2>
+                <div class="p-2 bg-slate-50 rounded text-xs text-gray-600 space-y-1">
+                    <div>土地漲價總數額：<span id="resC39" class="font-semibold text-emerald-700">0</span> 萬元</div>
+                    <div>物價指數調整後原規定地價或前次移轉現值：<span id="resC47" class="font-semibold text-emerald-700">0</span> 萬元</div>
+                    <div>漲價倍數 (G39)：<span id="resG39" class="font-semibold text-emerald-700">0</span></div>
+                </div>
+                <div class="flex justify-between border-b pb-1">
+                    <span class="result-title font-medium">(1) 自用住宅稅率稅額 <span id="txtURBadge1" class="text-emerald-600 font-bold ml-1 hidden">(🎉協議合建已減徵40%)</span></span>
+                    <span id="resLcTaxSelf" class="result-val text-emerald-600">0 元</span>
+                </div>
+                <div class="flex justify-between border-b pb-1">
+                    <span class="result-title font-medium">(2) 一般用地稅率稅額 <span id="txtURBadge2" class="text-emerald-600 font-bold ml-1 hidden">(🎉協議合建已減徵40%)</span></span>
+                    <span id="resLcTaxGeneral" class="result-val text-emerald-600">0 元</span>
+                </div>
+            </div>
+
+            <div id="cardNewTaxResult" class="card space-y-3 border-l-4 border-l-purple-500">
+                <h2 class="font-bold border-b pb-2 text-purple-700 text-lg">✨ 新制房地合一稅試算結果</h2>
+                <div class="flex justify-between items-start border-b pb-1 bg-rose-50 p-2 rounded">
+                    <div>
+                        <span class="result-title font-semibold block">房地合一稅 (一般稅率制)</span>
+                        <span class="text-[11px] text-gray-500 block mt-0.5">*( 賣出總價 - 買入總價 - 費用 - 土地漲價總數額 ) &times; 稅率</span>
+                    </div>
+                    <span class="result-val text-rose-600 pt-2" id="resC65">0 元</span>
+                </div>
+                <div class="flex justify-between border-b pb-1 bg-amber-50 p-2 rounded">
+                    <span class="result-title font-semibold">房地合一稅 (自住滿6年免稅優惠)</span>
+                    <span class="result-val text-amber-600" id="resC66">0 元</span>
+                </div>
+            </div>
+
             <div class="card space-y-3">
                 <h2 class="font-bold border-b pb-2 text-purple-700 text-base">🏛️ 舊制財產交易所得稅細項輸入</h2>
                 <div class="grid grid-cols-2 gap-4">
@@ -405,34 +426,6 @@
                 </div>
             </div>
 
-            <div id="cardNewTaxResult" class="card space-y-3 border-l-4 border-l-purple-500">
-                <h2 class="font-bold border-b pb-2 text-purple-700 text-lg">✨ 新制房地合一稅試算結果</h2>
-                <div class="p-2 bg-slate-50 rounded text-xs text-gray-600 space-y-1">
-                    <div>土地漲價總數額：<span id="resC39" class="font-semibold text-purple-700">0</span> 萬元</div>
-                    <div>物價指數調整後原規定地價或前次移轉現值：<span id="resC47" class="font-semibold text-purple-700">0</span> 萬元</div>
-                    <div>漲價倍數 (G39)：<span id="resG39" class="font-semibold text-purple-700">0</span></div>
-                </div>
-                <div class="flex justify-between border-b pb-1">
-                    <span class="result-title font-medium">(1) 自用住宅稅率稅額</span>
-                    <span id="resLcTaxSelf" class="result-val text-purple-600">0 元</span>
-                </div>
-                <div class="flex justify-between border-b pb-1">
-                    <span class="result-title font-medium">(2) 一般用地稅率稅額</span>
-                    <span id="resLcTaxGeneral" class="result-val text-purple-600">0 元</span>
-                </div>
-                <div class="flex justify-between items-start border-b pb-1 bg-rose-50 p-2 rounded">
-                    <div>
-                        <span class="result-title font-semibold block">房地合一稅 (一般稅率制)</span>
-                        <span class="text-[11px] text-gray-500 block mt-0.5">*( 賣出總價 - 買入總價 - 費用 - 土地漲價總數額 ) &times; 稅率</span>
-                    </div>
-                    <span class="result-val text-rose-600 pt-2" id="resC65">0 元</span>
-                </div>
-                <div class="flex justify-between border-b pb-1 bg-amber-50 p-2 rounded">
-                    <span class="result-title font-semibold">房地合一稅 (自住滿6年免稅優惠)</span>
-                    <span class="result-val text-amber-600" id="resC66">0 元</span>
-                </div>
-            </div>
-
             <div id="cardOldTaxResult" class="card space-y-3 border-l-4 border-l-pink-600">
                 <h2 class="font-bold border-b pb-2 text-pink-700 text-lg">🏛️ 舊制財產交易所得稅試算結果</h2>
                 <div class="flex justify-between border-b pb-1"><span class="result-title">房屋課稅所得額 [B97]</span><span class="font-semibold text-gray-800" id="resB97">0 元</span></div>
@@ -443,6 +436,7 @@
                     <span class="text-xl font-black text-purple-700" id="resOldFinalTax">0 元</span>
                 </div>
             </div>
+
         </div>
 
     </div>
@@ -507,6 +501,7 @@
             const b8 = parseFloat(document.getElementById('b8').value) || 1;
             const b10 = document.getElementById('b10').value;
             const b11 = document.getElementById('b11').value;
+            
             const houseRatesHold = {
                 "住家用-自住-全國3戶以內": [0.01, 0.012], "住家用-非自住": [0.02, 0.048],
                 "住家用-非自住-出租申報達租金標準": [0.015, 0.024], "住家用-非自住-繼承取得共有房屋": [0.015, 0.024],
@@ -518,11 +513,14 @@
             const hMinYuan = b4 * hRateHold[0] * 10000;
             const hMaxYuan = b4 * hRateHold[1] * 10000;
             document.getElementById('resHouseTaxHold').innerText = Math.round(hMinYuan).toLocaleString() + " ~ " + Math.round(hMaxYuan).toLocaleString() + " 元";
+            
             const b12 = (b5 * 0.8 * b6 * (b7 / b8)) / 10000;
             document.getElementById('resB12').innerText = b12.toFixed(2);
+            
             let landTaxHold = 0;
             const totalInYuanHold = b12 * 10000;
             const basePointHold = 43957000;
+            
             if (b11 === "progressive") {
                 if (totalInYuanHold <= basePointHold) landTaxHold = totalInYuanHold * 0.01;
                 else if (totalInYuanHold <= basePointHold * 6) landTaxHold = totalInYuanHold * 0.015 - basePointHold * 0.005;
@@ -535,6 +533,7 @@
                 landTaxHold = totalInYuanHold * rate;
             }
             document.getElementById('resLandTaxHold').innerText = Math.round(landTaxHold).toLocaleString() + " 元";
+            
             const minTotal = hMinYuan + landTaxHold + 2500;
             const maxTotal = hMaxYuan + landTaxHold + 2500;
             document.getElementById('resAnnualTotalHold').innerText = Math.round(minTotal).toLocaleString() + " ~ " + Math.round(maxTotal).toLocaleString() + " 元/年";
@@ -608,11 +607,42 @@
             const b95 = parseFloat(document.getElementById('b95').value) || 0;
             const c95 = parseFloat(document.getElementById('c95').value) || 0;
 
+            const feeA = parseFloat(document.getElementById('feeA').value) || 0;
+            const feeB = parseFloat(document.getElementById('feeB').value) || 0;
+            const feeC = parseFloat(document.getElementById('feeC').value) || 0;
+            const feeD = parseFloat(document.getElementById('feeD').value) || 0;
+            const feeE = parseFloat(document.getElementById('feeE').value) || 0;
+            const feeF = parseFloat(document.getElementById('feeF').value) || 0;
+
             if(!c35Val || !c36Val) return;
             const c35 = new Date(c35Val); const c36 = new Date(c36Val);
             const isNewTax = c35 >= new Date('2016-01-01');
 
-            // --- 土增稅計算區塊 ---
+            if (isNewTax) {
+                document.getElementById('badgeOldTax').className = "badge-not-applicable"; document.getElementById('badgeOldTax').innerText = "不適用";
+                document.getElementById('badgeNewTax').className = "badge-applicable"; document.getElementById('badgeNewTax').innerText = "適用";
+                document.getElementById('cardNewTaxResult').style.opacity = "1"; document.getElementById('cardOldTaxResult').style.opacity = "0.3";
+            } else {
+                document.getElementById('badgeOldTax').className = "badge-applicable"; document.getElementById('badgeOldTax').innerText = "適用";
+                document.getElementById('badgeNewTax').className = "badge-not-applicable"; document.getElementById('badgeNewTax').innerText = "不適用";
+                document.getElementById('cardNewTaxResult').style.opacity = "0.3"; document.getElementById('cardOldTaxResult').style.opacity = "1";
+            }
+
+            // 持有年限精算
+            let diffYear = c36.getFullYear() - c35.getFullYear();
+            if (c36.getMonth() < c35.getMonth() || (c36.getMonth() === c35.getMonth() && c36.getDate() < c35.getDate())) diffYear--;
+            const c37 = diffYear < 0 ? 0 : diffYear;
+            document.getElementById('resC37').innerText = c37;
+
+            // 費用估算
+            let estimateFee = c34 * 0.03; if (estimateFee > 30) estimateFee = 30;
+            document.getElementById('txtEstimateFee').innerText = estimateFee.toFixed(2);
+            const receiptTotal = feeA + feeB + feeC + feeD + feeE + feeF;
+            document.getElementById('txtReceiptTotal').innerText = receiptTotal.toFixed(2);
+            const finalC58 = receiptTotal > 0 ? receiptTotal : estimateFee;
+            document.getElementById('resFinalFeeC58').innerText = finalC58.toFixed(2);
+
+            // --- 土增稅計算區塊 (已精準修復公式) ---
             const fraction = (c46 / e46);
             const c39 = ((c41 * c44 * fraction) - (c40 * (c43 / 100) * c44 * fraction)) / 10000;
             const c47 = (c40 * (c43 / 100) * c44 * fraction) / 10000;
@@ -622,19 +652,54 @@
             document.getElementById('resG39').innerText = g39.toFixed(4);
 
             let lcTaxSelf = c39 * 0.10;
-            let lcTaxGeneral = (g39 < 1) ? (c39 * 0.2) : (g39 < 2 ? (c39 * 0.3 - c47 * 0.1) : (c39 * 0.4 - c47 * 0.3));
+            let lcTaxGeneral = 0;
+            if (c37 < 20) {
+                if (g39 < 1) lcTaxGeneral = c39 * 0.2;
+                else if (g39 < 2) lcTaxGeneral = c39 * 0.3 - c47 * 0.1;
+                else lcTaxGeneral = c39 * 0.4 - c47 * 0.3;
+            } else if (c37 < 30) {
+                if (g39 < 1) lcTaxGeneral = c39 * 0.2;
+                else if (g39 < 2) lcTaxGeneral = c39 * 0.28 - c47 * 0.08;
+                else lcTaxGeneral = c39 * 0.36 - c47 * 0.24;
+            } else if (c37 < 40) {
+                if (g39 < 1) lcTaxGeneral = c39 * 0.2;
+                else if (g39 < 2) lcTaxGeneral = c39 * 0.27 - c47 * 0.07;
+                else lcTaxGeneral = c39 * 0.34 - c47 * 0.21;
+            } else {
+                if (g39 < 1) lcTaxGeneral = c39 * 0.2;
+                else if (g39 < 2) lcTaxGeneral = c39 * 0.26 - c47 * 0.06;
+                else lcTaxGeneral = c39 * 0.32 - c47 * 0.18;
+            }
+
             if (document.getElementById('chkUrbanRenewal')?.checked) {
                 lcTaxSelf *= 0.6;
                 lcTaxGeneral *= 0.6;
+                document.getElementById('txtURBadge1')?.classList.remove('hidden');
+                document.getElementById('txtURBadge2')?.classList.remove('hidden');
+            } else {
+                document.getElementById('txtURBadge1')?.classList.add('hidden');
+                document.getElementById('txtURBadge2')?.classList.add('hidden');
             }
+            
             document.getElementById('resLcTaxSelf').innerText = Math.round(lcTaxSelf * 10000).toLocaleString() + " 元";
             document.getElementById('resLcTaxGeneral').innerText = Math.round(lcTaxGeneral * 10000).toLocaleString() + " 元";
 
-            // --- 房地合一稅計算 (不扣土增稅) ---
-            const baseProfit = (c34 - c33);
-            const c65 = baseProfit > 0 ? baseProfit * 0.2 : 0;
-            document.getElementById('resC65').innerText = isNewTax ? Math.round(c65 * 10000).toLocaleString() + " 元" : "不適用";
-            document.getElementById('resC66').innerText = isNewTax ? Math.round((baseProfit - 400) * 0.1 * 10000).toLocaleString() + " 元" : "不適用";
+            // --- 房地合一稅計算 ---
+            let c65Rate = 0.15;
+            if (c37 < 2) c65Rate = 0.45;
+            else if (c37 < 5) c65Rate = 0.35;
+            else if (c37 < 10) c65Rate = 0.20;
+            
+            const isSchemeA50 = document.getElementById('schemeA50').checked;
+            const appliedLcTax = isSchemeA50 ? lcTaxSelf : lcTaxGeneral;
+            const baseProfit = (c34 - c33 - finalC58 - c39); 
+            
+            const c65 = baseProfit > 0 ? baseProfit * c65Rate : 0;
+            document.getElementById('resC65').innerText = isNewTax ? Math.round(c65 * 10000).toLocaleString() + " 元" : "不適用 (舊制免課)";
+            
+            const c66Profit = baseProfit - 400;
+            const c66 = c66Profit > 0 ? c66Profit * 0.10 : 0;
+            document.getElementById('resC66').innerText = isNewTax ? Math.round(c66 * 10000).toLocaleString() + " 元" : "不適用 (舊制免課)";
             
             // --- 舊制財交稅邏輯 ---
             const b97 = b95 - c95;
@@ -643,7 +708,7 @@
             let oldDiff = b97 <= 590000 ? 0 : (b97 <= 1330000 ? 41300 : (b97 <= 2660000 ? 147700 : 413700));
             document.getElementById('resOldRate').innerText = (oldRate * 100) + "%";
             document.getElementById('resOldDiff').innerText = Math.round(oldDiff).toLocaleString() + " 元";
-            document.getElementById('resOldFinalTax').innerText = !isNewTax ? Math.round(b97 * oldRate - oldDiff).toLocaleString() + " 元" : "不適用";
+            document.getElementById('resOldFinalTax').innerText = !isNewTax ? Math.round(b97 * oldRate - oldDiff).toLocaleString() + " 元" : "不適用 (已改課房地合一稅)";
         }
 
         calculateHold();
